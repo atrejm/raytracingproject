@@ -9,7 +9,7 @@ import math
 import time
 
 ASPECT_RATIO = 16 / 9
-SCREEN_WIDTH = 150
+SCREEN_WIDTH = 200
 SCREEN_HEIGHT = int(SCREEN_WIDTH / ASPECT_RATIO)
 RENDER_SCALE = 5 # each pixel is scaled up by this amount
  
@@ -77,7 +77,9 @@ def main():
     
     world.add(Sphere(Vector3(0 , 0, -1), 0.5))
     world.add(Sphere(Vector3(4, -2, -4), 0.5))
-    world.add(Sphere(Vector3(0, 0, -.5), 0.09))
+    world.add(Sphere(Vector3(0, 0, -.9), 0.4))
+    world.add(Sphere(Vector3(0, 90, -90), 120))
+
     
 
     # define a variable to control the main loop
