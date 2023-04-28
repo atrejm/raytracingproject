@@ -8,7 +8,6 @@ class Sphere(Hittable):
     def __init__(self, center: Vector3, radius: float) -> None:
         self.cen = center
         self.r = radius
-        self.hit_record = HitRecord
         super().__init__()
 
     def hit(self, ray: Ray, t_min: float, t_max:float) -> bool:
@@ -28,9 +27,10 @@ class Sphere(Hittable):
         # if (root < t_min or t_max > root):
         #     return False
         
-        self.hit_record.t = root
-        self.hit_record.point = ray.at(self.hit_record.t)
-        outward_normal = (self.hit_record.point - self.cen) / self.r
-        self.set_face_normal(ray, outward_normal)
+        outward_normal = (ray.at(root) - self.cen) / self.r
+        self.hit_record = HitRecord(ray.at(root), outward_normal, root)
+        # self.hit_record.t = root
+        # self.hit_record.point = ray.at(self.hit_record.t)
+        self.hit_record.set_face_normal(ray, outward_normal)
 
-        return True
+        return self.hit_record
