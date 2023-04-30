@@ -24,8 +24,9 @@ class Sphere(Hittable):
 
         # find hte nearest root that lies in the acceptable range
         root = (-half_b - sqrtd) / a
-        # if (root < t_min or t_max > root):
-        #     return False
+        if (root < t_min or t_max < root):
+            root = (-half_b + sqrtd) / a
+            return False
         
         outward_normal = (ray.at(root) - self.cen) / self.r
         self.hit_record = HitRecord(ray.at(root), outward_normal, root)
