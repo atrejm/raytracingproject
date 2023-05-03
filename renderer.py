@@ -100,10 +100,8 @@ def main():
     world = Hittable_list()
     cam = Camera()
     
-    world.add(Sphere(Vector3(-0.5 , 0, -1), 0.5))
-    world.add(Sphere(Vector3(0.5, 0, -1), 0.5))
-    #world.add(Sphere(Vector3(4, -2, -4), 0.5))
-    #world.add(Sphere(Vector3(0, 0, -.9), 0.4))
+    world.add(Sphere(Vector3(-0.5, 0.2, -1), 0.5))
+    world.add(Sphere(Vector3(0.5, -0.2, -1), 0.5))
     #world.add(Sphere(Vector3(0, 90, -90), 120))
 
     
