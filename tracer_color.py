@@ -13,9 +13,17 @@ class TracerColor(Color):
         return self
     
     def __mul__(self, other):
-        self.r = int(self.r*other)
-        self.g = int(self.g*other)
-        self.b = int(self.b*other)
+
+        if type(other) is float:
+            self.r = int(self.r*other)
+            self.g = int(self.g*other)
+            self.b = int(self.b*other)
+
+        if type(other) is TracerColor:
+            #print(self.r, self.g)
+            self.r = min(int(self.r * other.r/255), 255)
+            self.g = min(int(self.g * other.g/255), 255)
+            self.b = min(int(self.b * other.b/255), 255)
 
         return self
     

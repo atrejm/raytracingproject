@@ -1,13 +1,15 @@
 from hittable import Hittable, HitRecord
 from raycast import Ray
 from pygame import Vector3
+from material import Material
 import math
 
 class Sphere(Hittable):
 
-    def __init__(self, center: Vector3, radius: float) -> None:
+    def __init__(self, center: Vector3, radius: float, material:Material) -> None:
         self.cen = center
         self.r = radius
+        self.material = material
         super().__init__()
 
     def hit(self, ray: Ray, t_min: float, t_max:float) -> bool:
@@ -29,7 +31,7 @@ class Sphere(Hittable):
             return False
         
         outward_normal = (ray.at(root) - self.cen) / self.r
-        self.hit_record = HitRecord(ray.at(root), outward_normal, root)
+        self.hit_record = HitRecord(ray.at(root), outward_normal, root, self.material, self)
         # self.hit_record.t = root
         # self.hit_record.point = ray.at(self.hit_record.t)
         self.hit_record.set_face_normal(ray, outward_normal)

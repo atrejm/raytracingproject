@@ -1,18 +1,22 @@
 import pygame, math, random, time
+from numpy import array
 from pygame import Color, Vector3
 from raycast import Ray
 from sphere import Sphere
 from camera import Camera
 from hittable import HitRecord
+from material import Material, Lambertian, Metal
 from tracer_color import TracerColor
 from hittable_list import Hittable_list
+from tracer_utilities import random_in_unit_sphere, random_unit_vector
 
 ASPECT_RATIO = 16 / 9
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = int(SCREEN_WIDTH / ASPECT_RATIO)
 RENDER_SCALE = 5 # each pixel is scaled up by this amount
 SAMPLES_PER_PIXEL = 50
-MAX_DEPTH = 50
+SAMPLE_SCALE = 1/SAMPLES_PER_PIXEL
+MAX_DEPTH = 40
  
 def create_display(height, width):
     pygame.init()
@@ -47,12 +51,17 @@ def ray_color(ray: Ray, world, depth, debug = False) -> Color:
     
     hit = world.hit(ray, 0, math.inf)
     if hit:
+        #print("hit")
         rec = hit
-        target = hit.point + hit.normal + random_unit_vector()
-        bounceray = Ray(hit.point, target - hit.point)
+        # target = hit.point + hit.normal + random_unit_vector()
+        # bounceray = Ray(hit.point, target - hit.point)
+        bounceray = hit.object.material.scatter(ray, hit)
+        attenuation = hit.object.material.albedo
         
-        return ray_color(bounceray, world, depth - 1, debug=True) * 0.5
-    
+        if(bounceray):
+            return ray_color(bounceray, world, depth - 1, debug=True) * attenuation 
+
+        return TracerColor(0, 0, 0)
         r = int(abs(hit.normal.x*255))
         g = int(abs(hit.normal.y*255))
         b = int(abs(hit.normal.z*255))
@@ -68,21 +77,22 @@ def ray_color(ray: Ray, world, depth, debug = False) -> Color:
     unit_direction = ray.direction().normalize()
     t = 0.5*(unit_direction.y + 1)
 
+    return TracerColor(180, 203, 242)
     c1 = TracerColor(255, 255, 255)*(1 - t)
     c2 = TracerColor(125, 180, 255)*t
     lerped = c1 + c2
     return lerped
     return TracerColor(37, 116, 245).lerp(TracerColor(255, 255, 255), t)
 
-def random_in_unit_sphere():
-    while True:
-        p = Vector3(random.random(), random.random(), random.random())
-        if p.magnitude() >=1:
-            continue
-        return p
+# def random_in_unit_sphere():
+#     while True:
+#         p = Vector3(random.random(), random.random(), random.random())
+#         if p.magnitude() >=1:
+#             continue
+#         return p
 
-def random_unit_vector():
-    return random_in_unit_sphere().normalize()
+# def random_unit_vector():
+#     return random_in_unit_sphere().normalize()
 
 def main():
     screen = create_display(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -100,16 +110,17 @@ def main():
     world = Hittable_list()
     cam = Camera()
     
-    world.add(Sphere(Vector3(-0.5, 0.2, -1), 0.5))
-    world.add(Sphere(Vector3(0.5, -0.2, -1), 0.5))
+    world.add(Sphere(Vector3(0, 100.5, -1), 100, Lambertian(TracerColor(200, 200, 20))))
+    world.add(Sphere(Vector3(0.5, 0, -1), 0.5, Metal(TracerColor(20, 80, 80), 0.4)))
+    world.add(Sphere(Vector3(-0.5, 0, -1), 0.5, Metal(TracerColor(200, 200, 200), 0.1)))
     #world.add(Sphere(Vector3(0, 90, -90), 120))
 
-    
 
     # define a variable to control the main loop
     running = True
 
     pixelarray = pygame.PixelArray(screen)
+    color_dict = {}
     # for j in range(SCREEN_HEIGHT):
     #     for i in range(SCREEN_WIDTH):
     #         u = i / (SCREEN_WIDTH - 1)
@@ -121,6 +132,8 @@ def main():
     movevector = Vector3(0.08, 0, 0)
     sphere = world.objects[0]
     samplescale = 1/SAMPLES_PER_PIXEL
+
+    
 
     for j in range(int(SCREEN_HEIGHT)):
         print("Scan Lines remaining: ", SCREEN_HEIGHT - j)
@@ -145,7 +158,10 @@ def main():
 
                 new_color = new_color + color_to_add
 
-            pixelarray[i, j] = TracerColor(new_color.r, new_color.g, new_color.b)
+            color_dict[(i, j)] = TracerColor(new_color.r, new_color.g, new_color.b)
+
+    for key, color in color_dict.items():
+        pixelarray[key] = color
 
 
     while running:

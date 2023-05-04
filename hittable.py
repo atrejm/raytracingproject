@@ -5,10 +5,12 @@ from raycast import Ray
 #HitRecord = namedtuple("HitRecord", "point normal t front_face")
 class HitRecord:
     
-    def __init__(self, point, normal, t) -> None:
+    def __init__(self, point, normal, t, material, object) -> None:
         self.point = point
         self.normal = normal
         self.t = t
+        self.material = material
+        self.object = object
         pass
 
     def set_face_normal(self, ray: Ray, outward_normal: Vector3):
